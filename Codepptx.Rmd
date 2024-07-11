@@ -1,0 +1,356 @@
+---
+title: "BÁO CÁO GIỮA KỲ GÓI 2 (UN DATA)"
+author: "SOFA"
+date: "2024-05-10"
+output:
+  beamer_presentation: default
+  powerpoint_presentation: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+```         
+```
+
+## **1. Giới thiệu**
+
+### ***1.1. Giới thiệu đề tài***
+
+-   Bình đẳng giới và phát triển kinh tế là hai khái niệm quan trọng trong lĩnh vực nghiên cứu xã hội. Bình đẳng giới đề cập đến sự công bằng và công nhận đầy đủ cho nam giới và nữ giới trong mọi lĩnh vực của cuộc sống, bao gồm cả quyền truy cập vào cơ hội, tài nguyên và quyền lực.
+-   Đề tài "Bình đẳng giới và sự phát triển kinh tế của các quốc gia trên thế giới" tập trung vào mối quan hệ giữa hai yếu tố này và nghiên cứu tác động của bình đẳng giới đến sự phát triển kinh tế của các quốc gia trên toàn cầu (Cụ thể là GDP).
+-   Đề tài sẽ điều tra mối liên hệ giữa chỉ số bình đẳng giới và các chỉ số phát triển kinh tế trong các quốc gia trên thế giới
+
+### ***1.2. Bộ dữ liệu***
+
+-   Nhóm tiến hành thực hiện thu thập dữ liệu từ các nguồn như UN Data, ILostat,...Kết quả dữ liệu thu thập bao gồm 4 tập dataframe với các giá trị như Gender, Employment, Seats, GDP.
+-   Thu thập trong giai đoạn từ 2000 đến 2022 đối với tất các quốc gia trên thế giới
+-   2 Phương pháp: API, Crawl data qua HTML
+
+#### *1.2.1. Biến Gender*
+
+Tập dữ liệu về giới tính (Gender) bao gồm thông tin về số lượng nam giới (male) và nữ giới (female) của các quốc quốc gia trong khoảng thời gian cụ thể. Các trường thông tin dữ liệu bao gồm: Tên quốc gia, Năm, Giới tính, Số lượng nam và số lượng nữ
+
+```{r}
+knitr::opts_chunk$set(echo = FALSE)
+head(gender_dffull, 5)
+```
+
+#### *1.2.2. Biến Employment*
+
+Tập dữ liệu về Số người có việc làm có lương (Employment) bao gồm số việc làm có lương giữa hai giới tính là Nữ (Female) và Nam(Female) của các quốc gia trong một khoảng thời gian cụ thể. Bộ dữ liệu được lấy từ ILOSTAT
+
+```{r}
+knitr::opts_chunk$set(echo = FALSE)
+
+head(employ, 5)
+```
+
+#### *1.2.3.Seats*
+
+Tập dữ liệu đại diện cho số lượng phụ nữ trong một Quốc hội (được thể hiện qua số ghế dành cho Quốc hội là nữ). Dữ liệu được lấy từ API của APU Parline ( một tổ chức chuyên cung cấp dữ liệu toàn cầu về các vấn đề trong bầu cử quốc hội)
+
+```{r}
+knitr::opts_chunk$set(echo = FALSE)
+head(merged_seatdf, 5)
+```
+
+#### *1.2.4. Biến GDP*
+
+Tập dữ liệu về GDP (Gross Domestic Product) bao gồm thông tin về giá trị của tất cả các hàng hóa và dịch vụ được sản xuất trong một quốc gia trong một khoảng thời gian cụ thể. Bộ dữ liệu lấy từ UN Data bằng phương pháp crawl
+
+```{r}
+knitr::opts_chunk$set(echo = FALSE)
+head(merged_gdpdf, 5)
+```
+
+### ***1.3. Thống kê bộ dữ liệu***
+
+```{r}
+knitr::opts_chunk$set(echo = FALSE)
+library(ggplot2)
+
+pie_chart <- ggplot(grouped_seatdf1, aes(x = "", y = Num_Countries, fill = Region)) +
+  geom_bar(stat = "identity", width = 1) +
+  coord_polar("y", start = 0) +
+  scale_fill_manual(values = c("#FF6666", "#66FF66", "#6666FF", "#FFFF66", "#FF99CC", "#666666", "#9933FF")) +
+  labs(fill = "Region", y = "Number of Countries", title = "Number of Countries in Each Region") +
+  geom_text(aes(label = Num_Countries), position = position_stack(vjust = 0.5), color = "black", fontface = "bold")
+
+print(pie_chart)
+```
+
+## 2. GENDER
+
+-   Khi trực quan hóa mẫu dữ liệu về gender tại các Châu lục, nhóm nhận thấy Châu lục có số lượng dân số lớn nhất là East Asia & Pacific. Tỷ lệ Nam - Nữ tại các quốc gia có sự chênh lệch như tỷ lệ này không quá lớn. 
+
+-   Các Châu lục có tỉ lệ Nữ lớn hơn Nam là các Châu lục: Sub-Saharan Africa, North America, Latin America & Caribbean, Europe & Central Asia.
+
+-   Ngược lại, các Châu lục có tỉ lệ Nam lớn hơn là các Châu lục: South Asia, Middle East & North Africa, East Asia & Pacific
+
+```{r}
+knitr::opts_chunk$set(echo = FALSE)
+library(ggplot2)
+
+ggplot(male_female_pyramid,
+       aes(x = Gender,
+           y = Region,
+           fill = Sex)) +
+  geom_col() +
+  geom_text(data = subset(male_female_pyramid, Sex == "Female"),
+            aes(label = Gender),
+            position = position_nudge(x = -0.05, y = 0),
+            size = 3) +
+  geom_text(data = subset(male_female_pyramid, Sex == "Male"),
+            aes(label = Gender),
+            position = position_nudge(x = 0.05, y = 0),
+            size = 3) +
+  theme(text = element_text(size = 4))
+```
+
+Tại East Asia & Pacific, tỷ lệ dân số có sự chênh lệch rõ rệt giữa các quốc gia trong khu vực. Quốc gia có dân số cao nhất là Trung Quốc, quốc gia này cũng cho thấy tỷ lệ Nữ cao hơn tỉ lệ của Nam. Đây cũng là một trong những số ít các quốc gia có tỷ lệ Nữ cao hơn Nam tại Châu lục này.
+
+```{r}
+knitr::opts_chunk$set(echo = FALSE)
+ggplot(filtered_data, aes(x = Country.or.Area, y = Gender, fill = Sex)) +
+  geom_col(position = "dodge") +
+  labs(title = "Gender Distribution in East Asia & Pacific (2021)", x = "Country", y = "Gender") +
+  scale_fill_manual(values = c("#1f77b4", "#ff7f0e"), labels = c("Male", "Female")) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
+```
+
+Tại Europe & Central Asia, tỷ lệ dân số cũng có sự chênh lệch rõ rệt giữa các quốc gia trong khu vực. Quốc gia có dân số cao nhất là Liên bang Nga, trong đó tỷ lệ Nam cao hơn tỷ lệ Nữ với độ chênh lệch tương đối lớn. Các quốc gia có dân số cao trong khu vực này lần lượt là: Thổ Nhĩ Kỳ, Tây Ban Nha, Ý và Đức. Theo đó, tỷ lệ Nam trong các quốc gia này cũng cao hơn tỷ lệ nữ.
+
+```{r}
+knitr::opts_chunk$set(echo = FALSE)
+
+ggplot(EuropeCentralAsia, aes(x = Country.or.Area, y = Gender, fill = Sex)) +
+  geom_col(position = "dodge") +
+  labs(title = "Gender Distribution in Europe Central Asia (2021)", x = "Country", y = "Gender") +
+  scale_fill_manual(values = c("#1f77b4", "#ff7f0e"), labels = c("Male", "Female")) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
+```
+
+Tại Latin America & Caribbean, đa số các quốc gia trong khu vực này đều có tỷ lệ nam cao hơn tỷ lệ nữ, tuy nhiên sự chênh lệch không quá lớn. Quốc gia có dân số cao nhất là Brazil. Các quốc gia có dân số cao trong khu vực này lần lượt là: Mexico, Colombia. Các quốc gia còn lại đều có tỷ lệ nam và nữ rất thấp, chỉ bằng ⅓ hoặc ¼ so với Brazil.
+
+```{r}
+knitr::opts_chunk$set(echo = FALSE)
+ggplot(LatinAmericaCaribbean, aes(x = Country.or.Area, y = Gender, fill = Sex)) +
+  geom_col(position = "dodge") +
+  labs(title = "Gender Distribution in Latin America & Caribbean (2021)", x = "Country", y = "Gender") +
+  scale_fill_manual(values = c("#1f77b4", "#ff7f0e"), labels = c("Male", "Female")) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
+
+```
+
+Tại Middle East & North Africa, đa số các quốc gia trong khu vực này đều có tỷ lệ nam thấp hơn tỷ lệ nữ, tuy nhiên sự chênh lệch không quá lớn. Quốc gia có dân số cao nhất là Ai Cập. Các quốc gia có dân số cao trong khu vực này lần lượt là: Iran và Ả Rập Xê-út và Maroc. Các quốc gia còn lại đều có tỷ lệ nam và nữ rất thấp, chỉ bằng ⅕ hoặc ⅙ so với Ai Cập.
+
+```{r}
+knitr::opts_chunk$set(echo = FALSE)
+ggplot(MiddleEastNorthAfrica, aes(x = Country.or.Area, y = Gender, fill = Sex)) +
+  geom_col(position = "dodge") +
+  labs(title = "Gender Distribution in Middle East & North Africa (2021)", x = "Country", y = "Gender") +
+  scale_fill_manual(values = c("#1f77b4", "#ff7f0e"), labels = c("Male", "Female")) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
+```
+
+Tại North America, tỷ lệ nam và nữ giữa các quốc gia có sự chênh lệch lớn. Quốc gia có dân số cao nhất là Mỹ, xếp sau là Canada. Lãnh thổ hải ngoại thuộc Anh có dân số rất nhỏ, khoảng 63.764 người.
+
+```{r}
+knitr::opts_chunk$set(echo = FALSE)
+ggplot(NorthAmerica, aes(x = Country.or.Area, y = Gender, fill = Sex)) +
+  geom_col(position = "dodge") +
+  labs(title = "Gender Distribution in North America (2021)", x = "Country", y = "Gender") +
+  scale_fill_manual(values = c("#1f77b4", "#ff7f0e"), labels = c("Male", "Female")) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
+
+
+```
+
+Tại South Asia, tỷ lệ nam và nữ giữa các quốc gia có sự chênh lệch rất lớn. Quốc gia có dân số cao nhất là Ấn Độ. Các quốc gia còn lại chỉ bằng ⅕ so với Ấn Độ.
+
+```{r}
+knitr::opts_chunk$set(echo = FALSE)
+ggplot(SouthAsia, aes(x = Country.or.Area, y = Gender, fill = Sex)) +
+  geom_col(position = "dodge") +
+  labs(title = "Gender Distribution in South Asia (2021)", x = "Country", y = "Gender") +
+  scale_fill_manual(values = c("#1f77b4", "#ff7f0e"), labels = c("Male", "Female")) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
+```
+
+Tại Sub-Saharan Africa (Hạ Saharan), tỷ lệ nam và nữ giữa các quốc gia có sự chênh lệch tương đối lớn. Quốc gia có dân số cao nhất là Cộng hòa Liên bang Nigeria, xếp sau là Cộng hoà dân chủ Congo và Cộng hòa Dân chủ Liên bang Ethiopia.
+
+```{r}
+ggplot(SubSaharanAfrica, aes(x = Country.or.Area, y = Gender, fill = Sex)) +
+  geom_col(position = "dodge") +
+  labs(title = "Gender Distribution in Sub-Saharan Africa (2021)", x = "Country", y = "Gender") +
+  scale_fill_manual(values = c("#1f77b4", "#ff7f0e"), labels = c("Male", "Female")) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1))
+```
+
+**TOP 5 QUỐC GIA CÓ FEMALE LỚN NHẤT THẾ GIỚI\
+**Ngoài ra, nhóm cũng tìm ra 5 quốc gia có tỷ lệ nữ cao nhất trên toàn thế giới: Bao gồm Ấn Độ (châu Á), Trung Quốc (Đông Á), Mỹ (Bắc Mỹ), Nhật Bản (châu Á) và Indonesia (châu Á).
+
+```{r}
+knitr::opts_chunk$set(echo = FALSE)
+chart <- ggplot(top_countries, aes(x = Country.or.Area, y = Total_Females)) +
+  geom_col(fill = "coral2") +
+  geom_text(aes(label = Total_Females), vjust = -0.5, color = "black", size = 3.5) +
+  labs(title = "Top 5 Countries with Highest Number of Females", x = "Country", y = "Total Females")
+chart
+```
+
+WORLD MAP SEAT
+
+```{r}
+knitr::opts_chunk$set(echo = FALSE)
+p <- plot_ly(merged_genderdf, z = ~Gender, text = ~paste("Country: ", Country.or.Area, "<br>Female: ", Gender),
+             locations = ~Country.or.Area, type = "choropleth", locationmode = "country names") %>%
+  layout(geo = list(scope = "world"))
+
+p
+```
+
+## 3. EMPLOYMENT
+
+```{r}
+knitr::opts_chunk$set(echo = FALSE)
+ggplot(employ_region, aes(x = Year, y = TotalEmployment, group = Region, color = Region)) +
+  geom_line(size = 1) +
+  geom_point(size = 2) +
+  labs(x = "Năm", y = "Tổng số lượng việc làm (Female)", color = "Khu vực") +
+  scale_x_discrete(breaks = c("2000", "2005", "2010", "2015", "2020")) +
+  theme(legend.position = "top")
+```
+
+```{r}
+knitr::opts_chunk$set(echo = FALSE)
+options(repr.plot.width = 6, repr.plot.height = 14)  
+ggplot(dfe %>% filter(Region == "East Asia & Pacific"), aes(x = TotalEmployment, y = Country)) +
+  geom_bar(stat = "identity", fill = "lightpink") +
+  labs(title = "Tổng số việc làm (Female) ở Đông Á và Thái Bình Dương") +
+  labs(x = "Tổng số việc làm", y = "Quốc gia") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 0.5))
+```
+
+WORLD MAP VỀ TỈ LỆ PHỤ NỮ CÓ VIỆC LÀM TRÊN THẾ GIỚI NĂM 2022
+
+```{r}
+knitr::opts_chunk$set(echo = FALSE)
+world_map <- map_data("world")
+mapemp <- subset(dfe, Year =="2022")
+p <- plot_ly(mapemp, z = ~Employment, text = ~paste("Country: ", Country, "<br>Employment: ", Employment),
+             locations = ~Country, type = "choropleth", locationmode = "country names")
+p <- layout(p, geo = list(scope = "world"))
+p
+```
+
+## 4. SEATS
+
+```{r}
+ggplot(seat_sum_by_region, aes(x = reorder(Region, -Total_Seat), y = Total_Seat)) +
+  geom_bar(stat = "identity", fill = "aquamarine3") +
+  geom_text(aes(label = round(Total_Seat, 2)), vjust = -0.5, color = "#FF6600") +
+  labs(title = "Tổng số ghế theo châu lục vào năm 2022", x = "Châu lục", y = "Tổng số ghế") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+```{r}
+knitr::opts_chunk$set(echo = FALSE)
+ggplot(sum_by_continent, aes(x = Year, y = Total_Seat, group = Region)) +
+  geom_line(aes(color = Region), size = 1) +
+  geom_point(aes(color = Region), size = 2) +
+  labs(title = "Tổng số ghế theo châu lục giai đoạn 2000 - 2020 ", x = "Châu lục", y = "Tổng số ghế") +
+  theme(legend.position = "top")
+
+```
+
+```{r}
+summary(merged_seatdf)
+```
+
+```{r}
+knitr::opts_chunk$set(echo = FALSE)
+plot_ly() %>%
+  add_lines(data = average_line, x = ~Year, y = ~Avg_Total_Seat, name = "Average", line = list(color = "blue")) %>%
+  add_lines(data = largest_countries, x = ~Year, y = ~Total_Seat, color = ~Country, name = ~Country) %>%
+  layout(title = list(
+    text = "Top 5 quốc gia trong khu vực Sub-Saharan Africa có biến động cao trong số ghế",
+    x = 0.5),
+    xaxis = list(title = "Năm"),
+    yaxis = list(title = "%thay đổi của số ghế"),
+    legend = list(orientation = "h", x = 0.1, y = 1.1),
+    margin = list(t = 100, b = 100))
+
+```
+
+```{r}
+knitr::opts_chunk$set(echo = FALSE)
+world_map <- map_data("world")
+
+# Kết hợp dữ liệu thu nhập và bản đồ thế giới
+mapseat <- subset(merged_seatdf, Year =="2020")
+
+# Vẽ biểu đồ map
+p <- plot_ly(mapseat, z = ~Seat, text = ~paste("Country: ", Country, "<br>Seat: ", Seat),
+             locations = ~Country, type = "choropleth", locationmode = "country names") %>%
+     layout(geo = list(scope = "world"))
+
+p
+```
+
+## 5. GDP
+
+Có thể thấy các GDP của các Quốc gia có sự phân bố khá đồng đều, tuy nhiên có một số Quốc gia có giá trị GDP lớn trên 20T như Trung Quốc,...
+
+```{r}
+knitr::opts_chunk$set(echo = FALSE)
+p <- plot_ly(dfgdp, z = ~GDP, text = ~paste("Country: ", Country, "<br>GDP: ", GDP),
+             locations = ~Country, type = "choropleth", locationmode = "country names") %>%
+  layout(geo = list(scope = "world"))
+
+p
+```
+
+Biểu đồ sau mô tả sự tăng trưởng kinh tế giữa các Châu lục. Có thể thấy, các Châu lục như Châu u, Bắc Mỹ (Bao gồm: Canada, Hoa Kỳ, Mexico), Đông Á Thái Bình Dương có sự tăng trưởng cao hơn so với những Châu lục khác.
+
+```{r}
+knitr::opts_chunk$set(echo = FALSE)
+  ggplot(GDP_continent, aes(x = Year, y = GDP, group = Region)) +
+    geom_line(aes(color = Region), size = 1) +
+    geom_point(aes(color = Region), size = 2) +
+    theme(legend.position = "top")
+  
+```
+
+```{r}
+knitr::opts_chunk$set(echo = FALSE)
+ggplot(GDP_cont_2022, aes(x = Region, y = GDP)) +
+  geom_bar(stat = "identity", fill = "#69b3a2") +
+  labs(title = "GDP by Continent in 2022",
+       x = "Region",
+       y = "GDP") +
+  theme(plot.width = 10, plot.height = 6,
+        axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+      
+```
+
+```{r}
+knitr::opts_chunk$set(echo = FALSE)
+ggplot(dp_df_top, aes(x = Year, y = GDP, group = Country, color = Country)) +
+  geom_line(size = 1) +
+  geom_point(size = 2) +
+  theme(legend.position = "top")
+
+
+```
+
+```{r}
+knitr::opts_chunk$set(echo = FALSE)
+plt <- ggplot(gdp_country) +
+  geom_col(aes(GDP, Country), fill = "deeppink", width = 0.6)
+plt
+```
+
+![](images/Tương quan GDP Em-01.png){width="813"}
