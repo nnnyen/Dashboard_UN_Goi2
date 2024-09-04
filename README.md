@@ -13,5 +13,5 @@ Two methodologies were employed: API and HTML data crawling.
 ## Packages
 - using the R Studio and Shiny packages to build the interactive dashboard
 
-![Uploading image.png…]()
+![z5429100981676_7486114dc04dba8d83511429a92866bc](https://github.com/user-attachments/assets/bad9c5c8-364f-4376-a739-3ddae12976c7)
 
