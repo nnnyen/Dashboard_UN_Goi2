@@ -8,5 +8,10 @@ This study will investigate the correlation between gender equality indices and 
 The research team collected data from sources such as UN Data, ILOStat, and others. The resulting dataset comprises four dataframes containing values for Gender, Employment, Seats, and GDP.
 Data collection spans the period from 2000 to 2022 for all countries worldwide.
 Two methodologies were employed: API and HTML data crawling.
+
+
 ## Packages
-- using the R Studio and Shiny packages to build the interactive dashboard 
+- using the R Studio and Shiny packages to build the interactive dashboard
+
+![Uploading image.png…]()
+
